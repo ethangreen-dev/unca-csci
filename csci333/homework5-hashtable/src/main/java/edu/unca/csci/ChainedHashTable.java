@@ -1,9 +1,10 @@
 package edu.unca.csci;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
-public class ChainedHashTable {
-    LinkedList<Integer>[] store;   
+public class ChainedHashTable<T> {
+    LinkedList<Entry<Integer, T>>[] store;   
     int storeSize;
 
     public ChainedHashTable(int inputCount) {
@@ -14,25 +15,28 @@ public class ChainedHashTable {
         store = new LinkedList[storeSize];
     }
     
-    public void insert(Integer value) {
+    public void insert(Integer key, T value) {
         // Determine where in the data store this value will go.
-        int index = hash(value);
+        int index = hash(key);
+
+        // Create our new entry.
+        Entry<Integer, T> entry = new Entry<Integer, T>(key, value, index);
         
         // If the value at this index is NOT null, it needs to be added onto the LinkedList element.
         if (store[index] != null) {
-            store[index].add(0, value); // Add to the HEAD of the LinkedList.
+            store[index].add(0, entry); // Add to the HEAD of the LinkedList.
             
             return;
         }
         
         // There is no value at this index, so we go ahead and initialize a new LinkedList and add the value.
-        store[index] = new LinkedList<Integer>();
-        store[index].add(value);
+        store[index] = new LinkedList<Entry<Integer, T>>();
+        store[index].add(entry);
     }
     
-    public void delete(Integer value) {
+    public void delete(Integer key) {
         // Determine where in the data store this value exists.
-        int index = hash(value);
+        int index = hash(key);
         
         // If the index is null, we don't have anything to do.
         if (store[index] == null) {
@@ -48,12 +52,25 @@ public class ChainedHashTable {
         }
 
         // If the index contains a non-null LinkedList node, walk down. If we find our value, delete it from the linked list. 
-        store[index].removeFirstOccurrence(value);
+        Iterator<Entry<Integer, T>> iter = store[index].descendingIterator();
+        int count = 0;
+
+        while (iter.hasNext()) {
+            Entry<Integer, T> next = iter.next();
+
+            if (next.key == key) {
+                store[index].remove(count);
+
+                return;
+            }
+
+            count++;
+        }
     }
     
-    public Integer search(Integer value) {
+    public T search(Integer key) {
         // Determine where in the data store this value exists.
-        int index = hash(value);
+        int index = hash(key);
         
         // If the index is null, we don't have anything to do. 
         if (store[index] == null || store[index].size() == 0) {
@@ -61,22 +78,38 @@ public class ChainedHashTable {
         }
         
         // Use the built-in get function to return the first occurence that equals this value.
-        return store[index].get(value);
+        Iterator<Entry<Integer, T>> iter = store[index].descendingIterator();
+        Entry<Integer, T> next;
+
+        while (iter.hasNext()) {
+            next = iter.next();
+
+            if (next.key == key) {
+                return next.value;
+            }
+        }
+
+        return null;
     }
     
     public String toString() {
         String out = "";
-
         for (int i = 0; i < storeSize; i++) {
-
-            // If there is nothing at the index. 
-            if (store[i] == null || store[i].size() == 0) {
+            if (store[i] == null) {
                 continue;
             }
 
-            out += i + ":" + store[i].toString() + " ";
+            out += i + ":";
+
+            Iterator<Entry<Integer, T>> iter = store[i].descendingIterator();
+            while (iter.hasNext()) {
+                Entry<Integer, T> next = iter.next();
+                out += "[k=" + next.key + "; v=" + next.value + "] ";
+            }
+
+            out += " ";
         }
-        
+
         return out;
     }
     
