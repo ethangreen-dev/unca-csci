@@ -1,6 +1,12 @@
+#include <stdio.h>
 
 #include "freader.h"
 
 int main() {
-    getlinec("the", "moby.txt", NOCASE_SENS);
+    char *pattern = "the";
+    char *file = "moby.txt";
+
+    int linec = getlinec(pattern, file, NOCASE_SENS);
+
+    printf("'%s' found in file '%s' on %d lines.\n", pattern, file, linec);
 }

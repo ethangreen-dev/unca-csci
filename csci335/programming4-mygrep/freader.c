@@ -11,7 +11,7 @@ int getlinec(char* search, char* filep, int mode) {
     }
 
     // Build the pattern lookup table.
-    char *plookup = calloc(sizeof(char) * ASCII_BOUNDS);
+    char *plookup = calloc(1, sizeof(char) * ASCII_BOUNDS);
     int patc = -1;
     for (;search[++patc] != '\0';) {
         // Since we use calloc to allocate space for the lookup table, it's quicker to define 0 as NULL instead of iterating through setting each to -1.
@@ -25,10 +25,12 @@ int getlinec(char* search, char* filep, int mode) {
     int readc = 0;
     int linec = 0;
 
-    while ((readc = fgetsc(buffer, sizeof(buffer), file)) != -1) {
-        linec += strlkp(plookup, search, buffer, patc, readc, mode);
+    while ((readc = fgetsc(buffer, 255, file)) != -1) {
+        linec += strlkp(plookup, search, buffer, patc - 1, readc - 1, mode);
     }
 
+    fclose(file);
+    return linec;
 }
 
 int strlkp(char *plookup, char *pattern, char *buffer, int patc, int bufc, int mode) {
@@ -39,7 +41,7 @@ int strlkp(char *plookup, char *pattern, char *buffer, int patc, int bufc, int m
 
     // Anyways, onto the actual code. (Sorry about these comments, I'm exhausted. I'm sure I'll tell you all about this later.)
     int lbounds = 0;
-    int ubounds = patc - 1;
+    int ubounds = patc - 1; 
 
     // Loop while the upper bounds is less than the bufc. If we reach past our bounds, we know that we're done searching
     // through the string -- if you're past the bounds, it means there's not enough characters to match the pattern.
@@ -47,7 +49,7 @@ int strlkp(char *plookup, char *pattern, char *buffer, int patc, int bufc, int m
         // Determine the index of the 'bad' character -- eg: the last character (left -> right) that doesn't match the same index
         // of the pattern.
         int badi = ubounds;
-        while (badi >= lbounds && chareql(pattern[badi - lbounds], buffer[badi], mode)) {
+        while (badi >= lbounds && chareql(pattern[badi - lbounds], buffer[badi], mode) == 1) {
             badi--;
         }
 
@@ -67,24 +69,23 @@ int strlkp(char *plookup, char *pattern, char *buffer, int patc, int bufc, int m
             shiftc = patc;
         }
 
-        // We're done checking for NULL cases, so decrement plval back to a real index.
-        plval--;
-
         // Edge-case handing of when badi is somewhere in the middle of the pattern. In this instance, our valid plval indexes
         // will be from 0->badi. If so, set the shift to the size of the pattern.
-        if (plval > (badi - lbounds)) {
+        else if ((plval - 1) > (badi - lbounds)) {
             shiftc = patc;
         }
 
         // In all other cases, we add the index of the char.
         else {
-            shiftc = plval;
+            shiftc = (patc - plval);
         }
 
         // Add shiftc to the upper and lower bounds to continue advancing the search.
         lbounds += shiftc;
         ubounds += shiftc;
     }
+
+    return 0;
 }
 
 int chareql(char first, char second, int mode) {
@@ -114,10 +115,9 @@ int fgetsc(char *buffer, int bufc, FILE *file) {
 
         // If the written char is a newline, add NULL to the next index, increment i and return.
         else if (buffer[i] == '\n') {
-            buffer[++i] = "\0";
+            buffer[++i] = '\0';
             return i + 1;
         }
     }
-
     return -1;
 }
