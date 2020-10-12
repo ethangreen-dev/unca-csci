@@ -12,7 +12,7 @@
 int getlinec(char* search, char* file, int mode);
 
 // Quick string lookup function, based on the Boyer-Moore algorithm.
-int strlkp(char *plookup, char *pattern, char *buffer, int patternlen, int bufferlen, int mode);
+int strlkp(char *plookup, char *pattern, char *buffer, int patc, int bufc, int mode);
 
 // Determine if two chars are equal, follows CASE_SENS and NOCASE_SENS mode rules.
 int chareql(char first, char second, int mode);
