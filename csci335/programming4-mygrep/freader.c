@@ -24,6 +24,7 @@ int getlinec(char* search, char* filep, int mode) {
     char *buffer = malloc(sizeof(char) * 255);
     int readc = 0;
     int linec = 0;
+    int linen = 0;
 
     while ((readc = fgetsc(buffer, 255, file)) != -1) {
         linec += strlkp(plookup, search, buffer, patc - 1, readc - 1, mode);
